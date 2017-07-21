@@ -20,6 +20,7 @@ var h = $("#canvas").height();
 loaded = 0;
 game_on = 0;
 starting_score = 0;
+activate_secret = 0;
 current_background_color="white";
 current_obstacle_interior_color="black";
 current_obstacle_border_color="black";
@@ -156,10 +157,10 @@ function init(score_start) {
 	cw=10; //cell width
 	audio2.pause();
 	music_toggle();
-	canvas_refresh_rate=20;
+	canvas_refresh_rate=10;
 	beginning_difficulty=2000 //this number sets the obstacle creation interval. The higher number the easier it is.
 	current_difficulty=beginning_difficulty;
-	move_obstacle_rate=30;
+	move_obstacle_rate=10;
 	score_increment_rate=60;
 	collision_refresh_rate=60;
 	pause_increment=0;
@@ -187,7 +188,10 @@ function start(create_obstacle_rate, special_track){
 	music_toggle();
 	}
 	
-	pt = setInterval(function(){paint();}, canvas_refresh_rate); //repaint the canvas every 'canvas_refresh_rate' milliseconds
+	//pt = setInterval(function(){paint();}, canvas_refresh_rate); //repaint the canvas every 'canvas_refresh_rate' milliseconds
+	game_on = 1
+	paint()
+	
 		console.log("paint: " + canvas_refresh_rate);
 	obst = setInterval (create_obstacle, create_obstacle_rate); //adds an element to the obstacle[] every 'create_obstacle_rate' milliseconds
 		console.log ("create obstacle: " + create_obstacle_rate);
@@ -201,6 +205,7 @@ function start(create_obstacle_rate, special_track){
 
 //stopping all dynamic components and keyboard input
 function stop(wait){
+	game_on = 0
 	document.removeEventListener("keydown",keyboard);
 	document.removeEventListener("keydown", pause_key);
 	if (wait === undefined) wait=0;
@@ -255,7 +260,7 @@ function next_level() {
 	if (score == 1000 && media_checkbox.checked == true) change_difficulty("video","media/video/youfool.ogg", 1100, "gold", "black", "gold", "black", "black", "media/audio/mortalkombat.mp3");
 	else if (score == 1000 && media_checkbox.checked == false) change_difficulty("","", 1100, "gold", "black", "gold", "black", "black", "");
 	if (score == 1250) change_difficulty("","", 1020, "blue", "white", "white", "white", "white", "continue");
-	if (score == 1500 && media_checkbox.checked == true) change_difficulty("video","media/video/commandolast.ogg", 980, "black", "orange", "orange", "red", "red", "continue")
+	if (score == 1500 && media_checkbox.checked == true) change_difficulty("","", 980, "black", "orange", "orange", "red", "red", "continue")
 	else if (score == 1500 && media_checkbox.checked == false) change_difficulty("","", 980, "black", "orange", "orange", "red", "red", "continue");
 	if (score == 2000 && media_checkbox.checked == true) change_difficulty("splash_audio","CONGRATS!! YOU BEAT THE GAME...NOT!!!!", 950, "black", "white", "black", "black", "white", "continue")
 	else if (score == 2000 && media_checkbox.checked == false) change_difficulty("","", 950, "black", "white", "black", "black", "white", "continue");
@@ -317,7 +322,7 @@ function change_difficulty(taunt_type, taunt_content, create_obstacle_rate, back
 	}
 }
 
-function paint() {
+var paint = function () {
 
 	//clear the canvas
 	cc.clearRect(0,0,800,500);
@@ -353,12 +358,16 @@ function paint() {
 		cc.strokeRect(obstacle[z].x, obstacle[z].y+4*cw, cw, 500);
 	}
 	cc.lineWidth=1;
+
+	if(game_on==1){
+		window.requestAnimationFrame(paint);
+	}
 	
 }
 	
 function change_color(){
 	if(typeof pt != "undefined") clearInterval(pt);
-	pt = setInterval(function(){paint()}, canvas_refresh_rate);
+//	pt = setInterval(function(){paint()}, canvas_refresh_rate);
 	}
 
 
